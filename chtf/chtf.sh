@@ -1,6 +1,6 @@
 # Copyright (c) 2012-2016 Hal Brodigan
 # Copyright (c) 2016-2018 Yleisradio Oy
-# Copyright (c) 2020, 2024 Teemu Matilainen
+# Copyright (c) 2020, 2024-2025 Teemu Matilainen
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -21,7 +21,7 @@
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-CHTF_VERSION='2.2.3-dev'
+CHTF_VERSION='2.3.0'
 
 # Set defaults
 
@@ -32,8 +32,8 @@ if [[ -z "$CHTF_TERRAFORM_DIR" ]]; then
         CHTF_TERRAFORM_DIR="$(brew --caskroom)"
     elif [[ -z "$CHTF_AUTO_INSTALL_METHOD" ]] &&
         command -v brew >/dev/null &&
-        [[ -d "$(brew --repo)/Library/Taps/yleisradio/homebrew-terraforms" ]]; then
-        # https://github.com/Yleisradio/homebrew-terraforms in use
+        [[ -d "$(brew --repo)/Library/Taps/tmatilai/homebrew-terraforms" || -d "$(brew --repo)/Library/Taps/yleisradio/homebrew-terraforms" ]]; then
+        # https://github.com/tmatilai/homebrew-terraforms in use
         CHTF_TERRAFORM_DIR="$(brew --caskroom)"
         CHTF_AUTO_INSTALL_METHOD='homebrew'
     else

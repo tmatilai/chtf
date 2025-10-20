@@ -12,7 +12,7 @@ Do you need different Terraform versions on different projects? Or maybe you wan
 
 Optional automatic install of missing Terraform versions requires either:
 
-- [Homebrew](https://brew.sh/) with [yleisradio/terraforms](https://github.com/Yleisradio/homebrew-terraforms) Tap (see below)
+- [Homebrew](https://brew.sh/) with [tmatilai/terraforms](https://github.com/tmatilai/homebrew-terraforms) Tap (see below)
 - bash, unzip, and wget or curl
 
 ---
@@ -23,7 +23,7 @@ Optional automatic install of missing Terraform versions requires either:
 
 On MacOS (and OSX) the easiest way is to use Homebrew. After installing Homebrew, run:
 
-    brew install yleisradio/terraforms/chtf
+    brew install tmatilai/terraforms/chtf
 
 Homebrew also installs the completion for all supported shells.
 
@@ -31,9 +31,9 @@ Homebrew also installs the completion for all supported shells.
 
 Manual installation on all systems:
 
-    curl -L -o chtf-2.2.2.tar.gz https://github.com/Yleisradio/chtf/archive/v2.2.2.tar.gz
-    tar -xzvf chtf-2.2.2.tar.gz
-    cd chtf-2.2.2/
+    curl -L -o chtf-2.3.0.tar.gz https://github.com/tmatilai/chtf/archive/v2.3.0.tar.gz
+    tar -xzvf chtf-2.3.0.tar.gz
+    cd chtf-2.3.0/
     make install
 
 The default installation location is `$HOME/share/chtf/` for bash/zsh, and `$HOME/.config/fish/` for fish. See the [Tips section](#tips) for installing to other locations.
@@ -49,7 +49,7 @@ The following environment variables can be used for configuring `chtf`. Click to
 <details>
 <summary><strong><code>CHTF_TERRAFORM_DIR</code></strong> - Specifies where the Terraform versions are stored.</summary>
 
-Defaults to the Homebrew Caskroom if the "yleisradio/terraforms" Tap is installed, `$HOME/.terraforms/` otherwise.
+Defaults to the Homebrew Caskroom if the "tmatilai/terraforms" Tap is installed, `$HOME/.terraforms/` otherwise.
 Each version should be installed as `$CHTF_TERRAFORM_DIR/terraform-<version>/terraform`.
 
 </details>
@@ -63,7 +63,7 @@ The default is `ask`, which will prompt the user for confirmation before automat
 <details>
 <summary><strong><code>CHTF_AUTO_INSTALL_METHOD</code></strong> - Specifies the method used for automatic installation.</summary>
 
-The default is `homebrew` if `CHTF_TERRAFORM_DIR` is no specified and the "yleisradio/terraforms" Tap is installed, `zip`  otherwise.
+The default is `homebrew` if `CHTF_TERRAFORM_DIR` is no specified and the "tmatilai/terraforms" Tap is installed, `zip`  otherwise.
 There shouldn't be normally need to set this variable.
 
 </details>
@@ -121,7 +121,7 @@ Use the Terraform version installed globally outside `chtf` (e.g. via a package 
 
 The development version of `chtf` can be used either by `source`ing or `make install`ing from a [clone of this repository](https://docs.github.com/en/free-pro-team@latest/github/creating-cloning-and-archiving-repositories/cloning-a-repository), or with Homebrew:
 
-    brew install yleisradio/terraforms/chtf --HEAD
+    brew install tmatilai/terraforms/chtf --HEAD
 
 </details>
 <details>
@@ -176,7 +176,7 @@ Homebrew installed `chtf` can be uninstalled with:
 
 ## Contributing
 
-Bug reports, pull requests, and other contributions are welcome on GitHub at [https://github.com/Yleisradio/chtf](https://github.com/Yleisradio/chtf).
+Bug reports, pull requests, and other contributions are welcome on GitHub at [https://github.com/tmatilai/chtf](https://github.com/tmatilai/chtf).
 
 This project is intended to be a safe, welcoming space for collaboration. By participating in this project you agree to abide by the terms of [Contributor Code of Conduct](CODE_OF_CONDUCT.md).
 
@@ -190,4 +190,4 @@ Original idea and implementation of `chtf` was heavily affected by [chruby](http
 
 Included [terraform-installer](https://github.com/robertpeteuil/terraform-installer) is released under the [Apache 2.0 License](https://github.com/robertpeteuil/terraform-installer/blob/1.5.4/LICENSE).
 
-_NOTE: `chtf` was originally part of the [homebrew-terraforms](https://github.com/Yleisradio/homebrew-terraforms/) project, but has been extracted to own project and modified to support also non-Homebrew environments._
+_NOTE: `chtf` was originally part of the [homebrew-terraforms](https://github.com/tmatilai/homebrew-terraforms/) project, but has been extracted to own project and modified to support also non-Homebrew environments._
