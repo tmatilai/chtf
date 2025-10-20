@@ -1,3 +1,6 @@
+## 2.3.1 / _Not released yet_
+
+
 ## 2.3.0 / 2025-10-20
 
 * Support "terraforms" Tap from the new GitHub owner, `tmatilai` ([#20](https://github.com/tmatilai/chtf/issues/20))
