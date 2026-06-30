@@ -167,6 +167,7 @@ function _chtf_install_homebrew -a tf_version
     if not test -d (brew --repo)/Library/Taps/tmatilai/homebrew-terraforms
         brew tap tmatilai/terraforms
     end
+    brew trust tmatilai/terraforms
     brew install --cask "terraform-$tf_cask_version"
 end
 

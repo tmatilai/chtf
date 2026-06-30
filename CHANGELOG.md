@@ -1,6 +1,7 @@
 ## 2.3.1 / _Not released yet_
 
 * Automatically migrate from the old `yleisradio/terraforms` tap to `tmatilai/terraforms` on auto-install
+* Trust the `tmatilai/terraforms` Homebrew Tap before auto-installing Terraform versions ([Homebrew Tap Trust](https://docs.brew.sh/Tap-Trust))
 
 ## 2.3.0 / 2025-10-20
 
