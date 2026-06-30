@@ -182,6 +182,7 @@ _chtf_install_homebrew() {
     if [[ ! -d "$(brew --repo)/Library/Taps/tmatilai/homebrew-terraforms" ]]; then
         brew tap tmatilai/terraforms
     fi
+    brew trust tmatilai/terraforms
     brew install --cask "terraform-$tf_cask_version"
 }
 

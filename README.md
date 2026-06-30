@@ -23,6 +23,7 @@ Optional automatic install of missing Terraform versions requires either:
 
 On MacOS (and OSX) the easiest way is to use Homebrew. After installing Homebrew, run:
 
+    brew trust tmatilai/terraforms
     brew install tmatilai/terraforms/chtf
 
 Homebrew also installs the completion for all supported shells.
