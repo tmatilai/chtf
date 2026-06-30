@@ -30,6 +30,7 @@ set -q CHTF_AUTO_INSTALL; or set -g CHTF_AUTO_INSTALL ask
 if not set -q CHTF_TERRAFORM_DIR
     if test "$CHTF_AUTO_INSTALL_METHOD" = homebrew
         set -g CHTF_TERRAFORM_DIR (brew --caskroom)
+    # TODO: Drop the legacy yleisradio tap detection in 3.0 (along with the migration in _chtf_install_homebrew)
     else if test -z "$CHTF_AUTO_INSTALL_METHOD"
         and type -q brew
         and begin
@@ -157,6 +158,15 @@ end
 
 function _chtf_install_homebrew -a tf_version
     set -l tf_cask_version (_chtf_cask_version $tf_version)
+    # Migrate from the old yleisradio tap owner to tmatilai if needed
+    # TODO: Remove this migration in 3.0
+    if test -d (brew --repo)/Library/Taps/yleisradio/homebrew-terraforms
+        echo 'chtf: Migrating from yleisradio/terraforms tap to tmatilai/terraforms'
+        brew untap yleisradio/terraforms
+    end
+    if not test -d (brew --repo)/Library/Taps/tmatilai/homebrew-terraforms
+        brew tap tmatilai/terraforms
+    end
     brew install --cask "terraform-$tf_cask_version"
 end
 
