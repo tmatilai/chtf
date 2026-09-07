@@ -213,6 +213,10 @@ _chtf_confirm() {
         no|false|0)
             return 1;;
         *)
+            if [[ ! -t 0 ]]; then
+                echo 'chtf: Not a terminal, set CHTF_AUTO_INSTALL=yes to install automatically' >&2
+                return 1
+            fi
             printf 'chtf: Do you want to install it? [yN] '
             if [[ -n "$ZSH_NAME" ]]; then
                 # shellcheck disable=SC2162 # ignore zsh command
