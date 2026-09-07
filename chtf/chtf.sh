@@ -87,6 +87,11 @@ _chtf_reset() {
 _chtf_use() {
     local tf_version="$1"
 
+    if [[ ! "$tf_version" =~ ^[0-9][0-9A-Za-z.-]*$ ]]; then
+        echo "chtf: Invalid version: $tf_version" >&2
+        return 1
+    fi
+
     if ! _chtf_find_executable "$tf_version" > /dev/null; then
         _chtf_install "$tf_version" || return 1
     fi
