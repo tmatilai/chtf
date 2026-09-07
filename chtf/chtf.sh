@@ -30,7 +30,7 @@ CHTF_VERSION='2.3.2-dev'
 if [[ -z "$CHTF_TERRAFORM_DIR" ]]; then
     if [[ "$CHTF_AUTO_INSTALL_METHOD" == 'homebrew' ]]; then
         CHTF_TERRAFORM_DIR="$(brew --caskroom)"
-    # TODO: Drop the legacy yleisradio tap detection in 3.0 (along with the migration in _chtf_install_homebrew)
+    # TODO: Drop the legacy yleisradio tap detection in 3.0 (along with the hint in _chtf_install_homebrew)
     elif [[ -z "$CHTF_AUTO_INSTALL_METHOD" ]] &&
         [[ "$(uname -s)" == 'Darwin' ]] && # Casks are macOS only
         command -v brew >/dev/null &&
@@ -184,19 +184,19 @@ _chtf_install_homebrew() {
         echo 'chtf: Homebrew Casks are supported only on macOS, use CHTF_AUTO_INSTALL_METHOD=zip' >&2
         return 1
     fi
-    local tf_cask_version
+    local tf_cask_version taps
     tf_cask_version="$(_chtf_cask_version "$1")"
-    # Migrate from the old yleisradio tap owner to tmatilai if needed
-    # TODO: Remove this migration in 3.0
-    if [[ -d "$(brew --repo)/Library/Taps/yleisradio/homebrew-terraforms" ]]; then
-        echo 'chtf: Migrating from yleisradio/terraforms tap to tmatilai/terraforms'
-        brew untap yleisradio/terraforms
+    taps="$(brew --repo)/Library/Taps"
+    if [[ ! -d "$taps/tmatilai/homebrew-terraforms" ]]; then
+        brew tap tmatilai/terraforms || return 1
     fi
-    if [[ ! -d "$(brew --repo)/Library/Taps/tmatilai/homebrew-terraforms" ]]; then
-        brew tap tmatilai/terraforms
+    # TODO: Remove the hint in 3.0
+    if [[ -d "$taps/yleisradio/homebrew-terraforms" ]]; then
+        echo "chtf: The old yleisradio/terraforms tap can be removed with 'brew untap yleisradio/terraforms' once its Terraform versions are uninstalled"
     fi
-    brew trust tmatilai/terraforms
-    brew install --cask "terraform-$tf_cask_version"
+    brew trust tmatilai/terraforms || return 1
+    # Fully qualified to avoid ambiguity with the old tap
+    brew install --cask "tmatilai/terraforms/terraform-$tf_cask_version"
 }
 
 _chtf_install_zip() {
