@@ -5,8 +5,10 @@ set -eu -o pipefail
 
 cd "$(dirname "$0")/.."
 
-fixture="$(mktemp -d)"
-trap 'rm -rf "$fixture"' EXIT
+tmp="$(mktemp -d)"
+trap 'rm -rf "$tmp"' EXIT
+# Glob characters in the dir name must be treated literally
+fixture="$tmp/tf*[1]"
 
 # Zip layout and Cask layout
 mkdir -p "$fixture/terraform-1.5.7" "$fixture/terraform-1-9-0/1.9.0"

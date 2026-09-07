@@ -2,6 +2,7 @@
 
 * Replace the bundled [terraform-installer](https://github.com/robertpeteuil/terraform-installer) with a simple built-in one for the `zip` method, supporting native Apple Silicon and Linux arm64 builds ([#26](https://github.com/tmatilai/chtf/issues/26), [#30](https://github.com/tmatilai/chtf/issues/30))
 * Stop untapping `yleisradio/terraforms` on auto-install, as Homebrew would uninstall the Terraform versions installed from it; print a hint instead ([#31](https://github.com/tmatilai/chtf/issues/31))
+* Fix `chtf system` and version switching when `CHTF_TERRAFORM_DIR` contains glob characters ([#32](https://github.com/tmatilai/chtf/issues/32))
 * Add `CHTF_RELEASES_URL` for downloading Terraform releases from a mirror ([#26](https://github.com/tmatilai/chtf/issues/26))
 * Use the `zip` method on Linux even if the Homebrew Tap is installed, as Casks are macOS only ([#27](https://github.com/tmatilai/chtf/issues/27))
 * Validate the version argument before using it in file paths and download URLs ([#28](https://github.com/tmatilai/chtf/issues/28))
