@@ -1,12 +1,17 @@
-## 2.3.2 / _Not released yet_
+## 2.4.0 / 2026-09-07
+
+### Features
 
 * Replace the bundled [terraform-installer](https://github.com/robertpeteuil/terraform-installer) with a simple built-in one for the `zip` method, supporting native Apple Silicon and Linux arm64 builds ([#26](https://github.com/tmatilai/chtf/issues/26), [#30](https://github.com/tmatilai/chtf/issues/30))
-* Stop untapping `yleisradio/terraforms` on auto-install, as Homebrew would uninstall the Terraform versions installed from it; print a hint instead ([#31](https://github.com/tmatilai/chtf/issues/31))
-* Fix `chtf system` and version switching when `CHTF_TERRAFORM_DIR` contains glob characters ([#32](https://github.com/tmatilai/chtf/issues/32))
 * Add `CHTF_RELEASES_URL` for downloading Terraform releases from a mirror ([#26](https://github.com/tmatilai/chtf/issues/26))
+
+### Fixes
+
+* Stop untapping `yleisradio/terraforms` on auto-install, as Homebrew would uninstall the Terraform versions installed from it; print a hint instead ([#31](https://github.com/tmatilai/chtf/issues/31))
 * Use the `zip` method on Linux even if the Homebrew Tap is installed, as Casks are macOS only ([#27](https://github.com/tmatilai/chtf/issues/27))
-* Validate the version argument before using it in file paths and download URLs ([#28](https://github.com/tmatilai/chtf/issues/28))
+* Fix `chtf system` and version switching when `CHTF_TERRAFORM_DIR` contains glob characters ([#32](https://github.com/tmatilai/chtf/issues/32))
 * Treat unknown `CHTF_AUTO_INSTALL` values as `ask` instead of installing silently ([#29](https://github.com/tmatilai/chtf/issues/29))
+* Validate the version argument before using it in file paths and download URLs ([#28](https://github.com/tmatilai/chtf/issues/28))
 * Decline the install confirmation with a message when stdin is not a terminal, instead of reading from it ([#33](https://github.com/tmatilai/chtf/issues/33))
 
 ## 2.3.1 / 2026-09-07
