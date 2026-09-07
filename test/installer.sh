@@ -94,18 +94,27 @@ check "checksum mismatch installs nothing" none "$(installed "$work/bad-sum")"
 install Linux x86_64 1.2.3 "$work/no-version" && rc=0 || rc=$?
 check "unknown version fails" 1 "$rc"
 
-# End to end through chtf in bash and fish
-e2e_env=(PATH="$work/bin:/usr/bin:/bin" FAKE_OS=Linux FAKE_ARCH=x86_64 CHTF_RELEASES_URL="file://$work/releases"
-         CHTF_AUTO_INSTALL=yes CHTF_AUTO_INSTALL_METHOD=zip)
+# End to end through chtf in bash and fish, with config set like in the README
+e2e_env=(PATH="$work/bin:/usr/bin:/bin" FAKE_OS=Linux FAKE_ARCH=x86_64)
 expected="terraform 1.5.7 linux_amd64
  * 1.5.7"
 
-actual="$(env "${e2e_env[@]}" CHTF_TERRAFORM_DIR="$work/tf-bash" \
-    "$(command -v bash)" --norc -c 'source chtf/chtf.sh; chtf 1.5.7 >/dev/null 2>&1; terraform; chtf')"
+actual="$(env "${e2e_env[@]}" "$(command -v bash)" --norc -c "
+    CHTF_RELEASES_URL='file://$work/releases'
+    CHTF_AUTO_INSTALL=yes
+    CHTF_AUTO_INSTALL_METHOD=zip
+    CHTF_TERRAFORM_DIR='$work/tf-bash'
+    source chtf/chtf.sh
+    chtf 1.5.7 >/dev/null 2>&1; terraform; chtf")"
 check "chtf.sh installs and switches" "$expected" "$actual"
 
-actual="$(env "${e2e_env[@]}" CHTF_TERRAFORM_DIR="$work/tf-fish" \
-    "$(command -v fish)" --no-config -c 'source chtf/chtf.fish; chtf 1.5.7 >/dev/null 2>&1; terraform; chtf')"
+actual="$(env "${e2e_env[@]}" "$(command -v fish)" --no-config -c "
+    set -g CHTF_RELEASES_URL 'file://$work/releases'
+    set -g CHTF_AUTO_INSTALL yes
+    set -g CHTF_AUTO_INSTALL_METHOD zip
+    set -g CHTF_TERRAFORM_DIR '$work/tf-fish'
+    source chtf/chtf.fish
+    chtf 1.5.7 >/dev/null 2>&1; terraform; chtf")"
 check "chtf.fish installs and switches" "$expected" "$actual"
 
 exit $status
