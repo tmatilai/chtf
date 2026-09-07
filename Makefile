@@ -16,6 +16,14 @@ endif
 
 all:
 
+lint:
+	shellcheck -s bash chtf/chtf.sh etc/chtf-completion.bash
+	fish --no-execute chtf/chtf.fish
+	fish --no-execute etc/chtf-completion.fish
+
+test:
+	test/smoke.sh
+
 install: install_sh install_fish
 
 install_sh:
@@ -30,4 +38,4 @@ install_fish:
 	install -d $(DESTDIR)$(FISH_COMPLETION_DIR)
 	install -m 0644 etc/chtf-completion.fish $(DESTDIR)$(FISH_COMPLETION_DIR)/chtf.fish
 
-.PHONY: all install
+.PHONY: all lint test install
