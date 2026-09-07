@@ -23,7 +23,9 @@ $fixture/terraform-1.5.7:$path
 $path
 exit=1
 chtf: Invalid version: ../x
-exit=1"
+exit=1
+no install
+chtf: Installing Terraform version 9.9.9"
 
 sh_script="
 CHTF_AUTO_INSTALL=no
@@ -36,6 +38,9 @@ chtf
 chtf system; echo \"\$PATH\"
 chtf 9.9.9 2>/dev/null; echo \"exit=\$?\"
 chtf ../x 2>&1; echo \"exit=\$?\"
+CHTF_RELEASES_URL=file:///nonexistent
+CHTF_AUTO_INSTALL=nope; chtf 9.9.9 </dev/null 2>&1 | grep Installing || echo 'no install'
+CHTF_AUTO_INSTALL=true; chtf 9.9.9 2>&1 | grep Installing || echo 'no install'
 "
 
 fish_script="
@@ -49,6 +54,9 @@ chtf
 chtf system; string join : \$PATH
 chtf 9.9.9 2>/dev/null; echo \"exit=\$status\"
 chtf ../x 2>&1; echo \"exit=\$status\"
+set -gx CHTF_RELEASES_URL file:///nonexistent
+set -gx CHTF_AUTO_INSTALL nope; chtf 9.9.9 </dev/null 2>&1 | grep Installing; or echo 'no install'
+set -gx CHTF_AUTO_INSTALL true; chtf 9.9.9 2>&1 | grep Installing; or echo 'no install'
 "
 
 status=0

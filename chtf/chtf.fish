@@ -186,9 +186,11 @@ end
 
 function _chtf_confirm
     switch "$CHTF_AUTO_INSTALL"
+        case yes true 1
+            return 0
         case no false 0
             return 1
-        case ask
+        case '*'
             read -n 1 -P 'chtf: Do you want to install it? [yN] ' reply
             string match -qr '[Yy]' $reply; or return 1
     end

@@ -55,10 +55,11 @@ Each version should be installed as `$CHTF_TERRAFORM_DIR/terraform-<version>/ter
 
 </details>
 <details>
-<summary><strong><code>CHTF_AUTO_INSTALL</code></strong> - Controls automatic installation missing Terraform versions.</summary>
+<summary><strong><code>CHTF_AUTO_INSTALL</code></strong> - Controls automatic installation of missing Terraform versions.</summary>
 
 Possible values are: `yes`, `no`, and `ask`.
 The default is `ask`, which will prompt the user for confirmation before automatic installation.
+Any other value is treated as `ask`.
 
 </details>
 <details>

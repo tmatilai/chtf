@@ -206,10 +206,13 @@ _chtf_install_zip() {
 }
 
 _chtf_confirm() {
+    local reply
     case "$CHTF_AUTO_INSTALL" in
+        yes|true|1)
+            return 0;;
         no|false|0)
             return 1;;
-        ask)
+        *)
             printf 'chtf: Do you want to install it? [yN] '
             if [[ -n "$ZSH_NAME" ]]; then
                 # shellcheck disable=SC2162 # ignore zsh command
