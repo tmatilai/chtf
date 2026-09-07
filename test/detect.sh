@@ -47,6 +47,13 @@ run() {
     env PATH="$work/bin:/usr/bin:/bin" HOME="$work/home" FAKE_OS="$2" "${cmd[@]}"
 }
 
+not_found="chtf: Terraform version 1.5.7 not found
+chtf: Installing Terraform version 1.5.7"
+brew_install="brew trust tmatilai/terraforms
+brew install --cask tmatilai/terraforms/terraform-1-5-7
+chtf: Failed to find terraform executable for 1.5.7
+exit=1"
+
 for shell in bash zsh fish; do
     case "$shell" in
         fish)
@@ -64,17 +71,24 @@ for shell in bash zsh fish; do
     check "$shell: tap detected on macOS" "homebrew $work/caskroom" "$(run "$shell" Darwin "$detect")"
     check "$shell: tap ignored on Linux" "zip $work/home/.terraforms" "$(run "$shell" Linux "$detect")"
 
-    check "$shell: homebrew install on macOS" "chtf: Terraform version 1.5.7 not found
-chtf: Installing Terraform version 1.5.7
-brew trust tmatilai/terraforms
-brew install --cask terraform-1-5-7
-chtf: Failed to find terraform executable for 1.5.7
-exit=1" "$(run "$shell" Darwin "$install")"
+    check "$shell: homebrew install on macOS" "$not_found
+$brew_install" "$(run "$shell" Darwin "$install")"
 
-    check "$shell: homebrew install refused on Linux" "chtf: Terraform version 1.5.7 not found
-chtf: Installing Terraform version 1.5.7
+    check "$shell: homebrew install refused on Linux" "$not_found
 chtf: Homebrew Casks are supported only on macOS, use CHTF_AUTO_INSTALL_METHOD=zip
 exit=1" "$(run "$shell" Linux "$install")"
+
+    mkdir -p "$work/brew/Library/Taps/yleisradio/homebrew-terraforms"
+    check "$shell: old tap hint" "$not_found
+chtf: The old yleisradio/terraforms tap can be removed with 'brew untap yleisradio/terraforms' once its Terraform versions are uninstalled
+$brew_install" "$(run "$shell" Darwin "$install")"
+    rm -r "$work/brew/Library/Taps/yleisradio"
+
+    mv "$work/brew/Library/Taps/tmatilai" "$work/tmatilai"
+    check "$shell: missing tap is tapped" "$not_found
+brew tap tmatilai/terraforms
+$brew_install" "$(run "$shell" Darwin "$install")"
+    mv "$work/tmatilai" "$work/brew/Library/Taps/tmatilai"
 done
 
 exit $status
