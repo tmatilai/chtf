@@ -74,7 +74,7 @@ end
 function _chtf_reset
     test -z "$CHTF_CURRENT"; and return 0
 
-    set PATH (string match -v -- $CHTF_CURRENT $PATH)
+    set PATH (string match -v -r -- '^'(string escape --style=regex -- $CHTF_CURRENT)'$' $PATH)
 
     set -e CHTF_CURRENT
     set -e CHTF_CURRENT_TERRAFORM_VERSION

@@ -76,7 +76,7 @@ _chtf_version() {
 _chtf_reset() {
     [[ -z "$CHTF_CURRENT" ]] && return 0
 
-    PATH=":$PATH:"; PATH="${PATH//:$CHTF_CURRENT:/:}"
+    PATH=":$PATH:"; PATH="${PATH//":$CHTF_CURRENT:"/:}"
     PATH="${PATH#:}"; PATH="${PATH%:}"
     hash -r
 
