@@ -141,7 +141,7 @@ _chtf_list_prefix() {
 
 _chtf_find_executable() {
     local tf_version="$1"
-    local tf_cask_version
+    local tf_cask_version tf_path
     tf_cask_version="$(_chtf_cask_version "$tf_version")"
 
     local tf_paths=(
