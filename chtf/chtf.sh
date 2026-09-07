@@ -191,10 +191,8 @@ _chtf_install_homebrew() {
 
 _chtf_install_zip() {
     local tf_version="$1"
-    local tf_dir="$CHTF_TERRAFORM_DIR/terraform-$tf_version"
-
-    mkdir -p "$tf_dir"
-    env TF_INSTALL_DIR="$tf_dir" "$(_chtf_root_dir)"/__chtf_terraform-install.sh -i "$tf_version"
+    env CHTF_RELEASES_URL="$CHTF_RELEASES_URL" \
+        "$(_chtf_root_dir)"/__chtf_terraform-install.sh "$tf_version" "$CHTF_TERRAFORM_DIR/terraform-$tf_version"
 }
 
 _chtf_confirm() {

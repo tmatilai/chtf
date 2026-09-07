@@ -1,5 +1,7 @@
 ## 2.3.2 / _Not released yet_
 
+* Replace the bundled [terraform-installer](https://github.com/robertpeteuil/terraform-installer) with a simple built-in one for the `zip` method, supporting native Apple Silicon and Linux arm64 builds ([#26](https://github.com/tmatilai/chtf/issues/26))
+* Add `CHTF_RELEASES_URL` for downloading Terraform releases from a mirror ([#26](https://github.com/tmatilai/chtf/issues/26))
 
 ## 2.3.1 / 2026-09-07
 

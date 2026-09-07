@@ -13,7 +13,7 @@ Do you need different Terraform versions on different projects? Or maybe you wan
 Optional automatic install of missing Terraform versions requires either:
 
 - [Homebrew](https://brew.sh/) with [tmatilai/terraforms](https://github.com/tmatilai/homebrew-terraforms) Tap (see below)
-- bash, unzip, and wget or curl
+- bash, unzip, curl or wget, and sha256sum or shasum
 
 ---
 
@@ -66,6 +66,12 @@ The default is `ask`, which will prompt the user for confirmation before automat
 
 The default is `homebrew` if `CHTF_TERRAFORM_DIR` is no specified and the "tmatilai/terraforms" Tap is installed, `zip`  otherwise.
 There shouldn't be normally need to set this variable.
+
+</details>
+<details>
+<summary><strong><code>CHTF_RELEASES_URL</code></strong> - Base URL for downloading Terraform releases with the <code>zip</code> method.</summary>
+
+The default is `https://releases.hashicorp.com`. Set this to use a mirror.
 
 </details>
 
@@ -188,7 +194,5 @@ This project is intended to be a safe, welcoming space for collaboration. By par
 The project is released as open source under the terms of the [MIT License](LICENSE).
 
 Original idea and implementation of `chtf` was heavily affected by [chruby](https://github.com/postmodern/chruby).
-
-Included [terraform-installer](https://github.com/robertpeteuil/terraform-installer) is released under the [Apache 2.0 License](https://github.com/robertpeteuil/terraform-installer/blob/1.5.4/LICENSE).
 
 _NOTE: `chtf` was originally part of the [homebrew-terraforms](https://github.com/tmatilai/homebrew-terraforms/) project, but has been extracted to own project and modified to support also non-Homebrew environments._
