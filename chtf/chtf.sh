@@ -1,6 +1,6 @@
 # Copyright (c) 2012-2016 Hal Brodigan
 # Copyright (c) 2016-2018 Yleisradio Oy
-# Copyright (c) 2020, 2024-2025 Teemu Matilainen
+# Copyright (c) 2020, 2024-2026 Teemu Matilainen
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -21,7 +21,7 @@
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-CHTF_VERSION='2.3.1-dev'
+CHTF_VERSION='2.3.1'
 
 # Set defaults
 
