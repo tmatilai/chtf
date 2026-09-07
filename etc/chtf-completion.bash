@@ -10,6 +10,7 @@ function _chtf() {
             completions="$(chtf | tr -d ' *') system"
         fi
 
+        # shellcheck disable=SC2207
         COMPREPLY=( $(compgen -W "$completions" -- "$cur") )
     fi
 }

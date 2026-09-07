@@ -111,9 +111,10 @@ _chtf_list() (
     # zsh
     setopt null_glob 2>/dev/null || true
 
+    local tf_cask_version tf_version
     for tf_path in "$CHTF_TERRAFORM_DIR"/terraform-*; do
-        local tf_cask_version="${tf_path##*/terraform-}"
-        local tf_version="$(_chtf_version "$tf_cask_version")"
+        tf_cask_version="${tf_path##*/terraform-}"
+        tf_version="$(_chtf_version "$tf_cask_version")"
 
         if [[ -x "$tf_path/$tf_version/terraform" ]] || [[ -x "$tf_path/terraform" ]]; then
             echo "$tf_version"
@@ -134,7 +135,8 @@ _chtf_list_prefix() {
 
 _chtf_find_executable() {
     local tf_version="$1"
-    local tf_cask_version="$(_chtf_cask_version "$tf_version")"
+    local tf_cask_version
+    tf_cask_version="$(_chtf_cask_version "$tf_version")"
 
     local tf_paths=(
         # New Cask path
@@ -172,7 +174,8 @@ _chtf_install() {
 }
 
 _chtf_install_homebrew() {
-    local tf_cask_version="$(_chtf_cask_version "$1")"
+    local tf_cask_version
+    tf_cask_version="$(_chtf_cask_version "$1")"
     # Migrate from the old yleisradio tap owner to tmatilai if needed
     # TODO: Remove this migration in 3.0
     if [[ -d "$(brew --repo)/Library/Taps/yleisradio/homebrew-terraforms" ]]; then
@@ -216,6 +219,7 @@ _chtf_root_dir() {
     if [[ -n "$BASH" ]]; then
         dirname "${BASH_SOURCE[0]}"
     elif [[ -n "$ZSH_NAME" ]]; then
+        # shellcheck disable=SC2296 # zsh expansion
         dirname "${(%):-%x}"
     else
         echo 'chtf: [WARN] Unknown shell' >&2
