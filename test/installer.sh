@@ -94,6 +94,15 @@ check "checksum mismatch installs nothing" none "$(installed "$work/bad-sum")"
 install Linux x86_64 1.2.3 "$work/no-version" && rc=0 || rc=$?
 check "unknown version fails" 1 "$rc"
 
+# The install helper hides stderr, so run the installer directly for messages
+actual="$(PATH="$work/bin:$PATH" FAKE_OS=Linux FAKE_ARCH=x86_64 "$installer" ../x "$work/bad-version" 2>&1)" && rc=0 || rc=$?
+check "invalid version fails" "1 chtf: Invalid version: ../x" "$rc $actual"
+
+# Only bash and the fake uname on PATH, so unzip is missing
+mkdir "$work/bash-only" && ln -s "$(command -v bash)" "$work/bash-only/bash"
+actual="$(PATH="$work/bin:$work/bash-only" FAKE_OS=Linux FAKE_ARCH=x86_64 "$installer" 1.5.7 "$work/no-unzip" 2>&1)" && rc=0 || rc=$?
+check "missing tool fails early" "1 chtf: Required tool not found: unzip" "$rc $actual"
+
 # End to end through chtf in bash and fish, with config set like in the README
 e2e_env=(PATH="$work/bin:/usr/bin:/bin" FAKE_OS=Linux FAKE_ARCH=x86_64)
 expected="terraform 1.5.7 linux_amd64

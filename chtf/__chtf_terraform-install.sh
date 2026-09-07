@@ -10,6 +10,24 @@ version="${1:?$usage}"
 install_dir="${2:?$usage}"
 release_url="${CHTF_RELEASES_URL:-https://releases.hashicorp.com}/terraform/$version"
 
+if [[ ! "$version" =~ ^[0-9][0-9A-Za-z.-]*$ ]]; then
+    echo "chtf: Invalid version: $version" >&2
+    exit 1
+fi
+
+# Succeeds if any of the given tools is available
+require() {
+    for tool in "$@"; do
+        command -v "$tool" >/dev/null && return 0
+    done
+    local IFS=/
+    echo "chtf: Required tool not found: $*" >&2
+    exit 1
+}
+require unzip
+require curl wget
+require sha256sum shasum
+
 os="$(uname -s | tr '[:upper:]' '[:lower:]')"
 case "$(uname -m)" in
     x86_64|amd64) arch=amd64 ;;
@@ -19,9 +37,17 @@ case "$(uname -m)" in
     *) echo "chtf: Unsupported architecture: $(uname -m)" >&2; exit 1 ;;
 esac
 
+# Never follow redirects to plain HTTP; show progress only on a terminal
+curl_opts=(-fL --proto-redir '-all,https' --connect-timeout 30 --retry 3)
+if [[ -t 2 ]]; then
+    curl_opts+=(-#)
+else
+    curl_opts+=(-sS)
+fi
+
 download() {
     if command -v curl >/dev/null; then
-        curl -fsSL -o "$2" "$1"
+        curl "${curl_opts[@]}" -o "$2" "$1"
     else
         wget -q -O "$2" "$1"
     fi || { echo "chtf: Failed to download $1" >&2; exit 1; }
