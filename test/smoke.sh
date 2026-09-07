@@ -21,6 +21,8 @@ $fixture/terraform-1.5.7:$path
  * 1.5.7
    1.9.0
 $path
+exit=1
+chtf: Invalid version: ../x
 exit=1"
 
 sh_script="
@@ -33,6 +35,7 @@ chtf 1.5.7; echo \"\$PATH\"
 chtf
 chtf system; echo \"\$PATH\"
 chtf 9.9.9 2>/dev/null; echo \"exit=\$?\"
+chtf ../x 2>&1; echo \"exit=\$?\"
 "
 
 fish_script="
@@ -45,6 +48,7 @@ chtf 1.5.7; string join : \$PATH
 chtf
 chtf system; string join : \$PATH
 chtf 9.9.9 2>/dev/null; echo \"exit=\$status\"
+chtf ../x 2>&1; echo \"exit=\$status\"
 "
 
 status=0

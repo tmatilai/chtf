@@ -81,7 +81,10 @@ function _chtf_reset
 end
 
 function _chtf_use -a tf_version
-    set -l tf_cask_version (_chtf_cask_version $tf_version)
+    if not string match -qr '^[0-9][0-9A-Za-z.-]*$' -- $tf_version
+        echo "chtf: Invalid version: $tf_version" >&2
+        return 1
+    end
 
     if not _chtf_find_executable $tf_version > /dev/null
         _chtf_install $tf_version; or return 1

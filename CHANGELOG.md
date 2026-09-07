@@ -3,6 +3,7 @@
 * Replace the bundled [terraform-installer](https://github.com/robertpeteuil/terraform-installer) with a simple built-in one for the `zip` method, supporting native Apple Silicon and Linux arm64 builds ([#26](https://github.com/tmatilai/chtf/issues/26))
 * Add `CHTF_RELEASES_URL` for downloading Terraform releases from a mirror ([#26](https://github.com/tmatilai/chtf/issues/26))
 * Use the `zip` method on Linux even if the Homebrew Tap is installed, as Casks are macOS only ([#27](https://github.com/tmatilai/chtf/issues/27))
+* Validate the version argument before using it in file paths and download URLs ([#28](https://github.com/tmatilai/chtf/issues/28))
 
 ## 2.3.1 / 2026-09-07
 
