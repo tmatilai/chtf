@@ -115,7 +115,7 @@ _chtf_list() (
         local tf_cask_version="${tf_path##*/terraform-}"
         local tf_version="$(_chtf_version "$tf_cask_version")"
 
-        if [[ -x "$tf_path/$tf_version/terraform" ]] || [[ -x "$tf_path/terraform.exe" ]]; then
+        if [[ -x "$tf_path/$tf_version/terraform" ]] || [[ -x "$tf_path/terraform" ]]; then
             echo "$tf_version"
         fi
     done | sort --version-sort --unique | while read -r tf_version; do

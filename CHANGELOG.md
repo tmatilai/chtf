@@ -2,6 +2,7 @@
 
 * Automatically migrate from the old `yleisradio/terraforms` tap to `tmatilai/terraforms` on auto-install
 * Trust the `tmatilai/terraforms` Homebrew Tap before auto-installing Terraform versions ([Homebrew Tap Trust](https://docs.brew.sh/Tap-Trust))
+* Fix listing of zip-installed versions in bash and zsh (regression since 2.2.0)
 
 ## 2.3.0 / 2025-10-20
 
