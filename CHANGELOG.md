@@ -1,3 +1,6 @@
+## 2.4.1 / _Not released yet_
+
+
 ## 2.4.0 / 2026-09-07
 
 ### Features
