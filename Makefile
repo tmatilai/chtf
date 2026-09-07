@@ -24,6 +24,7 @@ lint:
 test:
 	test/smoke.sh
 	test/installer.sh
+	test/detect.sh
 
 install: install_sh install_fish
 

@@ -32,6 +32,7 @@ if [[ -z "$CHTF_TERRAFORM_DIR" ]]; then
         CHTF_TERRAFORM_DIR="$(brew --caskroom)"
     # TODO: Drop the legacy yleisradio tap detection in 3.0 (along with the migration in _chtf_install_homebrew)
     elif [[ -z "$CHTF_AUTO_INSTALL_METHOD" ]] &&
+        [[ "$(uname -s)" == 'Darwin' ]] && # Casks are macOS only
         command -v brew >/dev/null &&
         [[ -d "$(brew --repo)/Library/Taps/tmatilai/homebrew-terraforms" || -d "$(brew --repo)/Library/Taps/yleisradio/homebrew-terraforms" ]]; then
         # https://github.com/tmatilai/homebrew-terraforms in use
@@ -174,6 +175,10 @@ _chtf_install() {
 }
 
 _chtf_install_homebrew() {
+    if [[ "$(uname -s)" != 'Darwin' ]]; then
+        echo 'chtf: Homebrew Casks are supported only on macOS, use CHTF_AUTO_INSTALL_METHOD=zip' >&2
+        return 1
+    fi
     local tf_cask_version
     tf_cask_version="$(_chtf_cask_version "$1")"
     # Migrate from the old yleisradio tap owner to tmatilai if needed

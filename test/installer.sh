@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Test the zip installer against local fake releases, with a fake uname.
 
-set -euo pipefail
+set -eu -o pipefail
 
 cd "$(dirname "$0")/.."
 installer="$PWD/chtf/__chtf_terraform-install.sh"

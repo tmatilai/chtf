@@ -50,7 +50,7 @@ The following environment variables can be used for configuring `chtf`. Click to
 <details>
 <summary><strong><code>CHTF_TERRAFORM_DIR</code></strong> - Specifies where the Terraform versions are stored.</summary>
 
-Defaults to the Homebrew Caskroom if the "tmatilai/terraforms" Tap is installed, `$HOME/.terraforms/` otherwise.
+Defaults to the Homebrew Caskroom on macOS if the "tmatilai/terraforms" Tap is installed, `$HOME/.terraforms/` otherwise.
 Each version should be installed as `$CHTF_TERRAFORM_DIR/terraform-<version>/terraform`.
 
 </details>
@@ -64,7 +64,8 @@ The default is `ask`, which will prompt the user for confirmation before automat
 <details>
 <summary><strong><code>CHTF_AUTO_INSTALL_METHOD</code></strong> - Specifies the method used for automatic installation.</summary>
 
-The default is `homebrew` if `CHTF_TERRAFORM_DIR` is no specified and the "tmatilai/terraforms" Tap is installed, `zip`  otherwise.
+The default is `homebrew` on macOS if `CHTF_TERRAFORM_DIR` is not specified and the "tmatilai/terraforms" Tap is installed, `zip` otherwise.
+The `homebrew` method works only on macOS, as Homebrew Casks are not supported on Linux.
 There shouldn't be normally need to set this variable.
 
 </details>
