@@ -7,6 +7,7 @@
 * Use the `zip` method on Linux even if the Homebrew Tap is installed, as Casks are macOS only ([#27](https://github.com/tmatilai/chtf/issues/27))
 * Validate the version argument before using it in file paths and download URLs ([#28](https://github.com/tmatilai/chtf/issues/28))
 * Treat unknown `CHTF_AUTO_INSTALL` values as `ask` instead of installing silently ([#29](https://github.com/tmatilai/chtf/issues/29))
+* Decline the install confirmation with a message when stdin is not a terminal, instead of reading from it ([#33](https://github.com/tmatilai/chtf/issues/33))
 
 ## 2.3.1 / 2026-09-07
 

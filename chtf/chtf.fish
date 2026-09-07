@@ -191,6 +191,10 @@ function _chtf_confirm
         case no false 0
             return 1
         case '*'
+            if not isatty stdin
+                echo 'chtf: Not a terminal, set CHTF_AUTO_INSTALL=yes to install automatically' >&2
+                return 1
+            end
             read -n 1 -P 'chtf: Do you want to install it? [yN] ' reply
             string match -qr '[Yy]' $reply; or return 1
     end
