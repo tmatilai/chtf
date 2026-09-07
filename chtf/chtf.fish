@@ -172,11 +172,8 @@ function _chtf_install_homebrew -a tf_version
 end
 
 function _chtf_install_zip -a tf_version
-    set -l tf_dir $CHTF_TERRAFORM_DIR/terraform-$tf_version
     set -l installer (_chtf_root_dir)/__chtf_terraform-install.sh
-
-    mkdir -p $tf_dir
-    env TF_INSTALL_DIR=$tf_dir $installer -i $tf_version
+    $installer $tf_version $CHTF_TERRAFORM_DIR/terraform-$tf_version
 end
 
 function _chtf_confirm

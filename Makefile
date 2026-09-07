@@ -17,12 +17,13 @@ endif
 all:
 
 lint:
-	shellcheck -s bash chtf/chtf.sh etc/chtf-completion.bash
+	shellcheck -s bash chtf/chtf.sh chtf/__chtf_terraform-install.sh etc/chtf-completion.bash test/*.sh
 	fish --no-execute chtf/chtf.fish
 	fish --no-execute etc/chtf-completion.fish
 
 test:
 	test/smoke.sh
+	test/installer.sh
 
 install: install_sh install_fish
 
