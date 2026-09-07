@@ -1,3 +1,6 @@
+## 2.3.2 / _Not released yet_
+
+
 ## 2.3.1 / 2026-09-07
 
 * Automatically migrate from the old `yleisradio/terraforms` tap to `tmatilai/terraforms` on auto-install
