@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+# Prepare a release: rewrite the version everywhere, verify, commit and open the PR.
+# Usage: script/release <version>
+
+set -eu -o pipefail
+
+cd "$(dirname "$0")/.."
+
+version="${1:-}"
+if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+    echo "usage: script/release <version>" >&2
+    exit 1
+fi
+
+if [[ "$(git branch --show-current)" != 'master' ]]; then
+    echo "release: not on master" >&2
+    exit 1
+fi
+if [[ -n "$(git status --porcelain)" ]]; then
+    echo "release: working tree is not clean" >&2
+    exit 1
+fi
+
+rewrite() { # <file> <sed script>
+    sed "$2" "$1" > "$1.new" && mv "$1.new" "$1"
+}
+
+git checkout -b "release-$version"
+
+rewrite chtf/chtf.sh "s/^CHTF_VERSION=.*/CHTF_VERSION='$version'/"
+rewrite chtf/chtf.fish "s/^set -g CHTF_VERSION .*/set -g CHTF_VERSION $version/"
+rewrite README.md "
+    s|chtf-[0-9][0-9.]*\.tar\.gz|chtf-$version.tar.gz|g
+    s|/archive/v[0-9][0-9.]*\.tar\.gz|/archive/v$version.tar.gz|
+    s|^\( *cd chtf-\)[0-9][0-9.]*/|\1$version/|
+"
+
+# The unreleased heading guesses the version, so replace the number too
+awk -v heading="## $version / $(date +%Y-%m-%d)" '
+    !replaced && /^## / { print heading; replaced = 1; next }
+    { print }
+' CHANGELOG.md > CHANGELOG.new && mv CHANGELOG.new CHANGELOG.md
+
+make lint
+make test
+
+git commit -am "Release v$version"
+gh pr create --fill

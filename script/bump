@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# Start a new development cycle: bump to <version>-dev and add a changelog placeholder.
+# Usage: script/bump <version>
+
+set -eu -o pipefail
+
+cd "$(dirname "$0")/.."
+
+version="${1:-}"
+if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+    echo "usage: script/bump <version>" >&2
+    exit 1
+fi
+
+rewrite() { # <file> <sed script>
+    sed "$2" "$1" > "$1.new" && mv "$1.new" "$1"
+}
+
+rewrite chtf/chtf.sh "s/^CHTF_VERSION=.*/CHTF_VERSION='$version-dev'/"
+rewrite chtf/chtf.fish "s/^set -g CHTF_VERSION .*/set -g CHTF_VERSION $version-dev/"
+
+{
+    printf '## %s / _Not released yet_\n\n\n' "$version"
+    cat CHANGELOG.md
+} > CHANGELOG.new && mv CHANGELOG.new CHANGELOG.md
+
+script/check-version
+
+echo "Bumped to $version-dev, commit as 'Bump version for development'"

@@ -16,15 +16,24 @@ endif
 
 all:
 
-lint:
-	shellcheck -s bash chtf/chtf.sh chtf/__chtf_terraform-install.sh etc/chtf-completion.bash test/*.sh
+lint: check-version
+	shellcheck -s bash chtf/chtf.sh chtf/__chtf_terraform-install.sh etc/chtf-completion.bash test/*.sh script/*
 	fish --no-execute chtf/chtf.fish
 	fish --no-execute etc/chtf-completion.fish
+
+check-version:
+	script/check-version
 
 test:
 	test/smoke.sh
 	test/installer.sh
 	test/detect.sh
+
+release:
+	script/release $(VERSION)
+
+bump:
+	script/bump $(VERSION)
 
 install: install_sh install_fish
 
@@ -40,4 +49,4 @@ install_fish:
 	install -d $(DESTDIR)$(FISH_COMPLETION_DIR)
 	install -m 0644 etc/chtf-completion.fish $(DESTDIR)$(FISH_COMPLETION_DIR)/chtf.fish
 
-.PHONY: all lint test install
+.PHONY: all lint check-version test release bump install

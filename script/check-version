@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+# Check that the version agrees in chtf.sh, chtf.fish, CHANGELOG.md and README.md.
+
+set -eu -o pipefail
+
+cd "$(dirname "$0")/.."
+
+sh_version="$(awk -F\' '/^CHTF_VERSION=/ {print $2; exit}' chtf/chtf.sh)"
+fish_version="$(awk '/^set -g CHTF_VERSION / {print $4; exit}' chtf/chtf.fish)"
+heading="$(awk '/^## / {print; exit}' CHANGELOG.md)"
+changelog_version="$(awk '/^## / {print $2; exit}' CHANGELOG.md)"
+released_version="$(awk '/^## / && $4 ~ /^[0-9][0-9][0-9][0-9]-/ {print $2; exit}' CHANGELOG.md)"
+readme_version="$(awk '/\/archive\/v/ {
+    sub(/.*\/archive\/v/, ""); sub(/\.tar\.gz.*/, ""); print; exit
+}' README.md)"
+
+status=0
+fail() {
+    echo "check-version: $*" >&2
+    status=1
+}
+
+[[ "$sh_version" == "$fish_version" ]] ||
+    fail "chtf.sh has $sh_version but chtf.fish has $fish_version"
+[[ "${sh_version%-dev}" == "$changelog_version" ]] ||
+    fail "chtf.sh has $sh_version but the changelog heading is for $changelog_version"
+
+if [[ "$sh_version" == *-dev ]]; then
+    [[ "$heading" == *'_Not released yet_' ]] ||
+        fail "development version $sh_version with a released changelog heading: $heading"
+else
+    [[ "$heading" != *'_Not released yet_' ]] ||
+        fail "release version $sh_version with an unreleased changelog heading: $heading"
+fi
+
+[[ "$readme_version" == "$released_version" ]] ||
+    fail "README refers to $readme_version but the latest released version is $released_version"
+
+exit "$status"
