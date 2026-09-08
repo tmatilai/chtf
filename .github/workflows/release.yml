@@ -1,0 +1,99 @@
+name: Release
+
+on:
+  push:
+    branches: [master]
+
+jobs:
+  release:
+    # Only run on the main repo
+    if: github.repository == 'tmatilai/chtf'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      # A release commit sets CHTF_VERSION to a version without the -dev suffix
+      - name: Check for an unreleased version
+        id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version="$(awk -F\' '/^CHTF_VERSION=/ {print $2; exit}' chtf/chtf.sh)"
+          if [[ "$version" == *-dev ]]; then
+              echo "Development version $version, nothing to release"
+          elif gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/v$version" --silent 2>/dev/null; then
+              echo "Tag v$version already exists"
+          else
+              echo "version=$version" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Generate token
+        if: steps.check.outputs.version
+        id: generate-token
+        uses: actions/create-github-app-token@v3
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: |
+            chtf
+            homebrew-terraforms
+
+      - name: Create the tag and the GitHub release
+        if: steps.check.outputs.version
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.check.outputs.version }}
+        run: |
+          notes="$(awk -v heading="## $VERSION /" '
+              index($0, heading) == 1 { found = 1; next }
+              /^## / { found = 0 }
+              found
+          ' CHANGELOG.md)"
+          if ! grep -q '[^[:space:]]' <<< "$notes"; then
+              echo "No changelog entry for $VERSION" >&2
+              exit 1
+          fi
+          gh release create "v$VERSION" --title "v$VERSION" --notes "$notes" --target "$GITHUB_SHA"
+
+      # Committed through the API so that GitHub signs it
+      - name: Bump version for development
+        if: steps.check.outputs.version
+        env:
+          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
+          VERSION: ${{ steps.check.outputs.version }}
+        run: |
+          script/bump "$(awk -F. '{print $1 "." $2 "." $3 + 1}' <<< "$VERSION")"
+          jq -n \
+            --arg repo "$GITHUB_REPOSITORY" \
+            --arg oid "$GITHUB_SHA" \
+            --rawfile sh chtf/chtf.sh \
+            --rawfile fish chtf/chtf.fish \
+            --rawfile changelog CHANGELOG.md \
+            '{
+              query: "mutation($input: CreateCommitOnBranchInput!) { createCommitOnBranch(input: $input) { commit { oid } } }",
+              variables: {input: {
+                branch: {repositoryNameWithOwner: $repo, branchName: "master"},
+                expectedHeadOid: $oid,
+                message: {headline: "Bump version for development"},
+                fileChanges: {additions: [
+                  {path: "chtf/chtf.sh", contents: ($sh | @base64)},
+                  {path: "chtf/chtf.fish", contents: ($fish | @base64)},
+                  {path: "CHANGELOG.md", contents: ($changelog | @base64)}
+                ]}
+              }}
+            }' > bump.json
+          gh api graphql --input bump.json
+
+      - name: Trigger the Homebrew tap update
+        if: steps.check.outputs.version
+        env:
+          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
+          VERSION: ${{ steps.check.outputs.version }}
+        run: |
+          jq -n --arg version "$VERSION" \
+            '{event_type: "chtf-release", client_payload: {version: $version}}' |
+            gh api "repos/$GITHUB_REPOSITORY_OWNER/homebrew-terraforms/dispatches" --input -
