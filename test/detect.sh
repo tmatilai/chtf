@@ -44,7 +44,8 @@ run() {
         fish) cmd=(fish --no-config -c "$3");;
     esac
     cmd[0]="$(command -v "${cmd[0]}")"
-    env PATH="$work/bin:/usr/bin:/bin" HOME="$work/home" FAKE_OS="$2" "${cmd[@]}"
+    env -u HOMEBREW_REPOSITORY PATH="$work/bin:/usr/bin:/bin" HOME="$work/home" \
+        FAKE_OS="$2" ${4:+HOMEBREW_REPOSITORY="$4"} "${cmd[@]}"
 }
 
 not_found="chtf: Terraform version 1.5.7 not found
@@ -69,6 +70,11 @@ for shell in bash zsh fish; do
     esac
 
     check "$shell: tap detected on macOS" "homebrew $work/caskroom" "$(run "$shell" Darwin "$detect")"
+    # HOMEBREW_REPOSITORY (exported by 'brew shellenv') is used instead of 'brew --repo'
+    check "$shell: tap detected via HOMEBREW_REPOSITORY" "homebrew $work/caskroom" \
+        "$(run "$shell" Darwin "$detect" "$work/brew")"
+    check "$shell: no tap in HOMEBREW_REPOSITORY" "zip $work/home/.terraforms" \
+        "$(run "$shell" Darwin "$detect" "$work/caskroom")"
     check "$shell: tap ignored on Linux" "zip $work/home/.terraforms" "$(run "$shell" Linux "$detect")"
 
     check "$shell: homebrew install on macOS" "$not_found
