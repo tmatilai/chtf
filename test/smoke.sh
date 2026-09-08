@@ -62,6 +62,10 @@ set -gx CHTF_AUTO_INSTALL nope; chtf 9.9.9 </dev/null 2>&1
 set -gx CHTF_AUTO_INSTALL true; chtf 9.9.9 2>&1 | grep Installing; or echo 'no install'
 "
 
+# Sourcing and running must also work with 'set -u' in the user's rc
+setu_script="set -u
+$sh_script"
+
 status=0
 for shell in bash zsh fish; do
     # Skip user rc files, they may alter PATH
@@ -76,6 +80,22 @@ for shell in bash zsh fish; do
         echo "$shell: OK"
     else
         echo "$shell: FAIL"
+        diff <(echo "$expected") <(echo "$actual") || true
+        status=1
+    fi
+done
+
+for shell in bash zsh; do
+    case "$shell" in
+        bash) cmd=(bash --norc -c "$setu_script");;
+        zsh) cmd=(zsh -f -c "$setu_script");;
+    esac
+    cmd[0]="$(command -v "${cmd[0]}")"
+    actual="$(env PATH="$path" "${cmd[@]}")"
+    if [[ "$actual" == "$expected" ]]; then
+        echo "$shell (set -u): OK"
+    else
+        echo "$shell (set -u): FAIL"
         diff <(echo "$expected") <(echo "$actual") || true
         status=1
     fi

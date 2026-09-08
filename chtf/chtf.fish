@@ -23,6 +23,25 @@
 
 set -g CHTF_VERSION 2.4.1-dev
 
+# Helpers needed by the defaults below
+
+# 'brew shellenv' exports HOMEBREW_REPOSITORY, so the slow brew call is
+# usually not needed
+function _chtf_brew_taps_dir
+    if test -n "$HOMEBREW_REPOSITORY"
+        echo $HOMEBREW_REPOSITORY/Library/Taps
+    else
+        echo (brew --repo)/Library/Taps
+    end
+end
+
+function _chtf_homebrew_tap_installed
+    set -l taps (_chtf_brew_taps_dir)
+    # TODO: Drop the legacy yleisradio tap detection in 3.0 (along with the hint in _chtf_install_homebrew)
+    test -d $taps/tmatilai/homebrew-terraforms
+    or test -d $taps/yleisradio/homebrew-terraforms
+end
+
 # Set defaults
 
 set -q CHTF_AUTO_INSTALL; or set -g CHTF_AUTO_INSTALL ask
@@ -30,14 +49,10 @@ set -q CHTF_AUTO_INSTALL; or set -g CHTF_AUTO_INSTALL ask
 if not set -q CHTF_TERRAFORM_DIR
     if test "$CHTF_AUTO_INSTALL_METHOD" = homebrew
         set -g CHTF_TERRAFORM_DIR (brew --caskroom)
-    # TODO: Drop the legacy yleisradio tap detection in 3.0 (along with the hint in _chtf_install_homebrew)
     else if test -z "$CHTF_AUTO_INSTALL_METHOD"
         and test (uname -s) = Darwin # Casks are macOS only
         and type -q brew
-        and begin
-            test -d (brew --repo)/Library/Taps/tmatilai/homebrew-terraforms
-            or test -d (brew --repo)/Library/Taps/yleisradio/homebrew-terraforms
-        end
+        and _chtf_homebrew_tap_installed
         # https://github.com/tmatilai/homebrew-terraforms in use
         set -g CHTF_TERRAFORM_DIR (brew --caskroom)
         set -g CHTF_AUTO_INSTALL_METHOD homebrew
@@ -91,7 +106,7 @@ function _chtf_use -a tf_version
     end
 
     set -l tf_path (_chtf_find_executable $tf_version)
-    if test -z $tf_path
+    if test -z "$tf_path"
         echo "chtf: Failed to find terraform executable for $tf_version" >&2
         return 1
     end
@@ -166,7 +181,7 @@ function _chtf_install_homebrew -a tf_version
         return 1
     end
     set -l tf_cask_version (_chtf_cask_version $tf_version)
-    set -l taps (brew --repo)/Library/Taps
+    set -l taps (_chtf_brew_taps_dir)
     if not test -d $taps/tmatilai/homebrew-terraforms
         brew tap tmatilai/terraforms; or return 1
     end
@@ -196,7 +211,7 @@ function _chtf_confirm
                 return 1
             end
             read -n 1 -P 'chtf: Do you want to install it? [yN] ' reply
-            string match -qr '[Yy]' $reply; or return 1
+            string match -qr '[Yy]' -- "$reply"; or return 1
     end
 end
 

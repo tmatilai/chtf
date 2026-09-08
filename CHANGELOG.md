@@ -1,5 +1,8 @@
 ## 2.4.1 / _Not released yet_
 
+* Speed up shell startup by preferring `HOMEBREW_REPOSITORY` over the slow `brew --repo` call ([#35](https://github.com/tmatilai/chtf/issues/35))
+* Support sourcing and using chtf with `set -u` enabled in bash and zsh ([#35](https://github.com/tmatilai/chtf/issues/35))
+
 
 ## 2.4.0 / 2026-09-07
 

@@ -23,18 +23,32 @@
 
 CHTF_VERSION='2.4.1-dev'
 
+# Helpers needed by the defaults below
+
+# 'brew shellenv' exports HOMEBREW_REPOSITORY, so the slow brew call is
+# usually not needed
+_chtf_brew_taps_dir() {
+    echo "${HOMEBREW_REPOSITORY:-$(brew --repo)}/Library/Taps"
+}
+
+_chtf_homebrew_tap_installed() {
+    local taps
+    taps="$(_chtf_brew_taps_dir)"
+    # TODO: Drop the legacy yleisradio tap detection in 3.0 (along with the hint in _chtf_install_homebrew)
+    [[ -d "$taps/tmatilai/homebrew-terraforms" || -d "$taps/yleisradio/homebrew-terraforms" ]]
+}
+
 # Set defaults
 
 : "${CHTF_AUTO_INSTALL:=ask}"
 
-if [[ -z "$CHTF_TERRAFORM_DIR" ]]; then
-    if [[ "$CHTF_AUTO_INSTALL_METHOD" == 'homebrew' ]]; then
+if [[ -z "${CHTF_TERRAFORM_DIR:-}" ]]; then
+    if [[ "${CHTF_AUTO_INSTALL_METHOD:-}" == 'homebrew' ]]; then
         CHTF_TERRAFORM_DIR="$(brew --caskroom)"
-    # TODO: Drop the legacy yleisradio tap detection in 3.0 (along with the hint in _chtf_install_homebrew)
-    elif [[ -z "$CHTF_AUTO_INSTALL_METHOD" ]] &&
+    elif [[ -z "${CHTF_AUTO_INSTALL_METHOD:-}" ]] &&
         [[ "$(uname -s)" == 'Darwin' ]] && # Casks are macOS only
         command -v brew >/dev/null &&
-        [[ -d "$(brew --repo)/Library/Taps/tmatilai/homebrew-terraforms" || -d "$(brew --repo)/Library/Taps/yleisradio/homebrew-terraforms" ]]; then
+        _chtf_homebrew_tap_installed; then
         # https://github.com/tmatilai/homebrew-terraforms in use
         CHTF_TERRAFORM_DIR="$(brew --caskroom)"
         CHTF_AUTO_INSTALL_METHOD='homebrew'
@@ -46,7 +60,7 @@ fi
 : "${CHTF_AUTO_INSTALL_METHOD:=zip}"
 
 chtf() {
-    case "$1" in
+    case "${1:-}" in
         -h|--help)
             echo "usage: chtf [<version> | system]"
             ;;
@@ -74,7 +88,7 @@ _chtf_version() {
 }
 
 _chtf_reset() {
-    [[ -z "$CHTF_CURRENT" ]] && return 0
+    [[ -z "${CHTF_CURRENT:-}" ]] && return 0
 
     PATH=":$PATH:"; PATH="${PATH//":$CHTF_CURRENT:"/:}"
     PATH="${PATH#:}"; PATH="${PATH%:}"
@@ -132,7 +146,7 @@ _chtf_list() (
 
 _chtf_list_prefix() {
     local tf_version="$1"
-    if [[ "$tf_version" == "$CHTF_CURRENT_TERRAFORM_VERSION" ]]; then
+    if [[ "$tf_version" == "${CHTF_CURRENT_TERRAFORM_VERSION:-}" ]]; then
         printf ' *'
     else
         printf '  '
@@ -176,7 +190,7 @@ _chtf_install() {
     _chtf_confirm "$tf_version" || return 1
 
     echo "chtf: Installing Terraform version $tf_version"
-    $install_function "$tf_version"
+    "$install_function" "$tf_version"
 }
 
 _chtf_install_homebrew() {
@@ -186,7 +200,7 @@ _chtf_install_homebrew() {
     fi
     local tf_cask_version taps
     tf_cask_version="$(_chtf_cask_version "$1")"
-    taps="$(brew --repo)/Library/Taps"
+    taps="$(_chtf_brew_taps_dir)"
     if [[ ! -d "$taps/tmatilai/homebrew-terraforms" ]]; then
         brew tap tmatilai/terraforms || return 1
     fi
@@ -201,7 +215,7 @@ _chtf_install_homebrew() {
 
 _chtf_install_zip() {
     local tf_version="$1"
-    env CHTF_RELEASES_URL="$CHTF_RELEASES_URL" \
+    env CHTF_RELEASES_URL="${CHTF_RELEASES_URL:-}" \
         "$(_chtf_root_dir)"/__chtf_terraform-install.sh "$tf_version" "$CHTF_TERRAFORM_DIR/terraform-$tf_version"
 }
 
@@ -218,7 +232,7 @@ _chtf_confirm() {
                 return 1
             fi
             printf 'chtf: Do you want to install it? [yN] '
-            if [[ -n "$ZSH_NAME" ]]; then
+            if [[ -n "${ZSH_NAME:-}" ]]; then
                 # shellcheck disable=SC2162 # ignore zsh command
                 read -k reply
             else
@@ -231,9 +245,9 @@ _chtf_confirm() {
 }
 
 _chtf_root_dir() {
-    if [[ -n "$BASH" ]]; then
+    if [[ -n "${BASH:-}" ]]; then
         dirname "${BASH_SOURCE[0]}"
-    elif [[ -n "$ZSH_NAME" ]]; then
+    elif [[ -n "${ZSH_NAME:-}" ]]; then
         # shellcheck disable=SC2296 # zsh expansion
         dirname "${(%):-%x}"
     else
