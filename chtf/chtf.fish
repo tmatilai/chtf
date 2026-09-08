@@ -83,7 +83,9 @@ function _chtf_cask_version -a tf_version
 end
 
 function _chtf_version -a tf_cask_version
-    string replace -a '-' '.' -- $tf_cask_version
+    # Only dashes between digits replace a dot, so that prereleases like
+    # terraform-0-12-0-rc1 map back to 0.12.0-rc1
+    string replace -ar '(?<=[0-9])-(?=[0-9])' . -- $tf_cask_version
 end
 
 function _chtf_reset

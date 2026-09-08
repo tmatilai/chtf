@@ -10,16 +10,22 @@ trap 'rm -rf "$tmp"' EXIT
 # Glob characters in the dir name must be treated literally
 fixture="$tmp/tf*[1]"
 
-# Zip layout and Cask layout
-mkdir -p "$fixture/terraform-1.5.7" "$fixture/terraform-1-9-0/1.9.0"
-touch "$fixture/terraform-1.5.7/terraform" "$fixture/terraform-1-9-0/1.9.0/terraform"
-chmod +x "$fixture/terraform-1.5.7/terraform" "$fixture/terraform-1-9-0/1.9.0/terraform"
+# Zip layout, Cask layout, and a prerelease Cask
+mkdir -p "$fixture/terraform-1.5.7" "$fixture/terraform-1-9-0/1.9.0" \
+    "$fixture/terraform-0-10-0-rc1/0.10.0-rc1"
+touch "$fixture/terraform-1.5.7/terraform" "$fixture/terraform-1-9-0/1.9.0/terraform" \
+    "$fixture/terraform-0-10-0-rc1/0.10.0-rc1/terraform"
+chmod +x "$fixture/terraform-1.5.7/terraform" "$fixture/terraform-1-9-0/1.9.0/terraform" \
+    "$fixture/terraform-0-10-0-rc1/0.10.0-rc1/terraform"
 
 path='/usr/bin:/bin'
-expected="   1.5.7
+expected="   0.10.0-rc1
+   1.5.7
    1.9.0
 $fixture/terraform-1-9-0/1.9.0:$path
+$fixture/terraform-0-10-0-rc1/0.10.0-rc1:$path
 $fixture/terraform-1.5.7:$path
+   0.10.0-rc1
  * 1.5.7
    1.9.0
 $path
@@ -36,6 +42,7 @@ CHTF_TERRAFORM_DIR='$fixture'
 source chtf/chtf.sh
 chtf
 chtf 1.9.0; echo \"\$PATH\"
+chtf 0.10.0-rc1; echo \"\$PATH\"
 chtf 1.5.7; echo \"\$PATH\"
 chtf
 chtf system; echo \"\$PATH\"
@@ -52,6 +59,7 @@ set -gx CHTF_TERRAFORM_DIR '$fixture'
 source chtf/chtf.fish
 chtf
 chtf 1.9.0; string join : \$PATH
+chtf 0.10.0-rc1; string join : \$PATH
 chtf 1.5.7; string join : \$PATH
 chtf
 chtf system; string join : \$PATH

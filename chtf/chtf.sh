@@ -84,7 +84,10 @@ _chtf_cask_version() {
 }
 
 _chtf_version() {
-    tr '-' '.' <<< "$1"
+    # Only dashes between digits replace a dot, so that prereleases like
+    # terraform-0-12-0-rc1 map back to 0.12.0-rc1. The expression is repeated
+    # because consecutive matches overlap on the shared digit.
+    sed 's/\([0-9]\)-\([0-9]\)/\1.\2/g; s/\([0-9]\)-\([0-9]\)/\1.\2/g' <<< "$1"
 }
 
 _chtf_reset() {
