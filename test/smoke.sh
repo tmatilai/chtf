@@ -74,13 +74,19 @@ set -gx CHTF_AUTO_INSTALL true; chtf 9.9.9 2>&1 | grep Installing; or echo 'no i
 setu_script="set -u
 $sh_script"
 
+# macOS ships bash 3.2 as /bin/bash; test it too when it is not the PATH one
+sh_shells=(bash zsh)
+if [[ -x /bin/bash ]] && [[ "$(/bin/bash --version)" != "$(bash --version)" ]]; then
+    sh_shells+=(/bin/bash)
+fi
+
 status=0
-for shell in bash zsh fish; do
+for shell in "${sh_shells[@]}" fish; do
     # Skip user rc files, they may alter PATH
     case "$shell" in
-        bash) cmd=(bash --norc -c "$sh_script");;
-        zsh) cmd=(zsh -f -c "$sh_script");;
-        fish) cmd=(fish --no-config -c "$fish_script");;
+        *bash) cmd=("$shell" --norc -c "$sh_script");;
+        zsh) cmd=("$shell" -f -c "$sh_script");;
+        fish) cmd=("$shell" --no-config -c "$fish_script");;
     esac
     cmd[0]="$(command -v "${cmd[0]}")"
     actual="$(env PATH="$path" "${cmd[@]}")"
@@ -93,10 +99,10 @@ for shell in bash zsh fish; do
     fi
 done
 
-for shell in bash zsh; do
+for shell in "${sh_shells[@]}"; do
     case "$shell" in
-        bash) cmd=(bash --norc -c "$setu_script");;
-        zsh) cmd=(zsh -f -c "$setu_script");;
+        *bash) cmd=("$shell" --norc -c "$setu_script");;
+        zsh) cmd=("$shell" -f -c "$setu_script");;
     esac
     cmd[0]="$(command -v "${cmd[0]}")"
     actual="$(env PATH="$path" "${cmd[@]}")"
