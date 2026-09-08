@@ -103,6 +103,19 @@ mkdir "$work/bash-only" && ln -s "$(command -v bash)" "$work/bash-only/bash"
 actual="$(PATH="$work/bin:$work/bash-only" FAKE_OS=Linux FAKE_ARCH=x86_64 "$installer" 1.5.7 "$work/no-unzip" 2>&1)" && rc=0 || rc=$?
 check "missing tool fails early" "1 chtf: Required tool not found: unzip" "$rc $actual"
 
+# Alternative tools are listed with a '/' (the IFS join in require). The other
+# direct cases run under the shebang bash only, so use /bin/bash here as well
+bashes=("$(command -v bash)")
+if [[ -x /bin/bash ]] && [[ "$(/bin/bash --version)" != "$(bash --version)" ]]; then
+    bashes+=(/bin/bash)
+fi
+mkdir "$work/no-net" && ln -s "$(command -v unzip)" "$work/no-net/unzip"
+for bash_bin in "${bashes[@]}"; do
+    ln -sf "$bash_bin" "$work/no-net/bash"
+    actual="$(PATH="$work/bin:$work/no-net" FAKE_OS=Linux FAKE_ARCH=x86_64 "$installer" 1.5.7 "$work/no-curl" 2>&1)" && rc=0 || rc=$?
+    check "missing download tool ($bash_bin)" "1 chtf: Required tool not found: curl/wget" "$rc $actual"
+done
+
 # End to end through chtf in bash and fish, with config set like in the README
 e2e_env=(PATH="$work/bin:/usr/bin:/bin" FAKE_OS=Linux FAKE_ARCH=x86_64)
 expected="terraform 1.5.7 linux_amd64

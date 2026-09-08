@@ -39,9 +39,9 @@ check() {
 run() {
     local cmd
     case "$1" in
-        bash) cmd=(bash --norc -c "$3");;
-        zsh) cmd=(zsh -f -c "$3");;
-        fish) cmd=(fish --no-config -c "$3");;
+        *bash) cmd=("$1" --norc -c "$3");;
+        zsh) cmd=("$1" -f -c "$3");;
+        fish) cmd=("$1" --no-config -c "$3");;
     esac
     cmd[0]="$(command -v "${cmd[0]}")"
     env -u HOMEBREW_REPOSITORY PATH="$work/bin:/usr/bin:/bin" HOME="$work/home" \
@@ -55,7 +55,13 @@ brew install --cask tmatilai/terraforms/terraform-1-5-7
 chtf: Failed to find terraform executable for 1.5.7
 exit=1"
 
-for shell in bash zsh fish; do
+# macOS ships bash 3.2 as /bin/bash; test it too when it is not the PATH one
+sh_shells=(bash zsh)
+if [[ -x /bin/bash ]] && [[ "$(/bin/bash --version)" != "$(bash --version)" ]]; then
+    sh_shells+=(/bin/bash)
+fi
+
+for shell in "${sh_shells[@]}" fish; do
     case "$shell" in
         fish)
             detect='source chtf/chtf.fish; echo "$CHTF_AUTO_INSTALL_METHOD $CHTF_TERRAFORM_DIR"'
