@@ -10,20 +10,20 @@ permissions:
 concurrency: release
 
 jobs:
-  release:
+  # A release commit sets CHTF_VERSION to a version without the -dev suffix
+  check:
     # Only run on the main repo
     if: github.repository == 'tmatilai/chtf'
     runs-on: ubuntu-latest
-    timeout-minutes: 10
-    permissions:
-      contents: write
+    timeout-minutes: 5
+    outputs:
+      version: ${{ steps.check.outputs.version }}
     steps:
       - name: Check out repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
-      # A release commit sets CHTF_VERSION to a version without the -dev suffix
       - name: Check for an unreleased version
         id: check
         env:
@@ -32,14 +32,33 @@ jobs:
           version="$(awk -F\' '/^CHTF_VERSION=/ {print $2; exit}' chtf/chtf.sh)"
           if [[ "$version" == *-dev ]]; then
               echo "Development version $version, nothing to release"
+          elif [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              echo "Invalid version: $version" >&2
+              exit 1
           elif gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/v$version" --silent 2>/dev/null; then
               echo "Tag v$version already exists"
           else
               echo "version=$version" >> "$GITHUB_OUTPUT"
           fi
 
+  release:
+    needs: check
+    if: needs.check.outputs.version
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # Requires manual approval before the release is created
+    environment: release
+    permissions:
+      contents: write
+    env:
+      VERSION: ${{ needs.check.outputs.version }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
       - name: Generate token
-        if: steps.check.outputs.version
         id: generate-token
         uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
         with:
@@ -52,10 +71,8 @@ jobs:
             homebrew-terraforms
 
       - name: Create the tag and the GitHub release
-        if: steps.check.outputs.version
         env:
           GH_TOKEN: ${{ github.token }}
-          VERSION: ${{ steps.check.outputs.version }}
         run: |
           notes="$(awk -v heading="## $VERSION /" '
               index($0, heading) == 1 { found = 1; next }
@@ -70,10 +87,8 @@ jobs:
 
       # Committed through the API so that GitHub signs it
       - name: Bump version for development
-        if: steps.check.outputs.version
         env:
           GH_TOKEN: ${{ steps.generate-token.outputs.token }}
-          VERSION: ${{ steps.check.outputs.version }}
         run: |
           script/bump "$(awk -F. '{print $1 "." $2 "." $3 + 1}' <<< "$VERSION")"
           jq -n \
@@ -98,10 +113,8 @@ jobs:
           gh api graphql --input bump.json
 
       - name: Trigger the Homebrew tap update
-        if: steps.check.outputs.version
         env:
           GH_TOKEN: ${{ steps.generate-token.outputs.token }}
-          VERSION: ${{ steps.check.outputs.version }}
         run: |
           jq -n --arg version "$VERSION" \
             '{event_type: "chtf-release", client_payload: {version: $version}}' |
