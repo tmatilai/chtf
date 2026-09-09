@@ -198,7 +198,10 @@ end
 
 function _chtf_install_zip -a tf_version
     set -l installer (_chtf_root_dir)/__chtf_terraform-install.sh
-    env CHTF_RELEASES_URL="$CHTF_RELEASES_URL" $installer $tf_version $CHTF_TERRAFORM_DIR/terraform-$tf_version
+    env CHTF_RELEASES_URL="$CHTF_RELEASES_URL" \
+        CHTF_VERIFY_SIGNATURE="$CHTF_VERIFY_SIGNATURE" \
+        CHTF_GPG_KEY="$CHTF_GPG_KEY" \
+        $installer $tf_version $CHTF_TERRAFORM_DIR/terraform-$tf_version
 end
 
 function _chtf_confirm
