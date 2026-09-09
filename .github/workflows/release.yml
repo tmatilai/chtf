@@ -4,16 +4,24 @@ on:
   push:
     branches: [master]
 
+permissions:
+  contents: read
+
+concurrency: release
+
 jobs:
   release:
     # Only run on the main repo
     if: github.repository == 'tmatilai/chtf'
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     permissions:
       contents: write
     steps:
       - name: Check out repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       # A release commit sets CHTF_VERSION to a version without the -dev suffix
       - name: Check for an unreleased version
@@ -33,10 +41,11 @@ jobs:
       - name: Generate token
         if: steps.check.outputs.version
         id: generate-token
-        uses: actions/create-github-app-token@v3
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
         with:
           client-id: ${{ vars.APP_CLIENT_ID }}
           private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          permission-contents: write
           owner: ${{ github.repository_owner }}
           repositories: |
             chtf
