@@ -219,6 +219,8 @@ _chtf_install_homebrew() {
 _chtf_install_zip() {
     local tf_version="$1"
     env CHTF_RELEASES_URL="${CHTF_RELEASES_URL:-}" \
+        CHTF_VERIFY_SIGNATURE="${CHTF_VERIFY_SIGNATURE:-}" \
+        CHTF_GPG_KEY="${CHTF_GPG_KEY:-}" \
         "$(_chtf_root_dir)"/__chtf_terraform-install.sh "$tf_version" "$CHTF_TERRAFORM_DIR/terraform-$tf_version"
 }
 

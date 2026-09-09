@@ -13,7 +13,7 @@ Do you need different Terraform versions on different projects? Or maybe you wan
 Optional automatic install of missing Terraform versions requires either:
 
 - [Homebrew](https://brew.sh/) with [tmatilai/terraforms](https://github.com/tmatilai/homebrew-terraforms) Tap (see below)
-- bash, unzip, curl or wget, and sha256sum or shasum
+- bash, unzip, curl or wget, and sha256sum or shasum; optionally gpg for verifying the signature of the release checksums
 
 ---
 
@@ -74,6 +74,19 @@ There shouldn't be normally need to set this variable.
 <summary><strong><code>CHTF_RELEASES_URL</code></strong> - Base URL for downloading Terraform releases with the <code>zip</code> method.</summary>
 
 The default is `https://releases.hashicorp.com`. Set this to use a mirror.
+
+</details>
+<details>
+<summary><strong><code>CHTF_VERIFY_SIGNATURE</code></strong> - Controls verification of the PGP signature of the release checksums with the <code>zip</code> method.</summary>
+
+The downloaded Terraform release is always verified against its checksum file. The checksum file itself is additionally verified against HashiCorp's PGP signature when `gpg` is available.
+Possible values are: `yes` (fail if `gpg` is not found), `no`, and `auto` (the default).
+
+</details>
+<details>
+<summary><strong><code>CHTF_GPG_KEY</code></strong> - Path to an ASCII-armored public key for verifying the signature.</summary>
+
+Replaces the embedded HashiCorp release signing key, e.g. for a mirror that signs its own checksum files. The signature is then expected in `terraform_<version>_SHA256SUMS.sig`.
 
 </details>
 
