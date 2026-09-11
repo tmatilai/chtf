@@ -1,11 +1,15 @@
-## 2.4.1 / _Not released yet_
+## 2.5.0 / 2026-09-11
 
+### Features
+
+* Verify the Terraform release checksums against HashiCorp's PGP signature when `gpg` is available, see `CHTF_VERIFY_SIGNATURE` and `CHTF_GPG_KEY` ([#38](https://github.com/tmatilai/chtf/issues/38))
+
+### Fixes
+
+* Refuse plain HTTP downloads also with `wget` ([#38](https://github.com/tmatilai/chtf/issues/38))
 * Speed up shell startup by preferring `HOMEBREW_REPOSITORY` over the slow `brew --repo` call ([#35](https://github.com/tmatilai/chtf/issues/35))
 * Support sourcing and using chtf with `set -u` enabled in bash and zsh ([#35](https://github.com/tmatilai/chtf/issues/35))
 * Fix listing of prerelease versions installed as Casks, e.g. `0.10.0-rc1` ([#36](https://github.com/tmatilai/chtf/issues/36))
-* Verify the Terraform release checksums against HashiCorp's PGP signature when `gpg` is available, see `CHTF_VERIFY_SIGNATURE` and `CHTF_GPG_KEY` ([#38](https://github.com/tmatilai/chtf/issues/38))
-* Refuse plain HTTP downloads also with `wget` ([#38](https://github.com/tmatilai/chtf/issues/38))
-
 
 ## 2.4.0 / 2026-09-07
 
