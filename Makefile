@@ -32,9 +32,6 @@ test:
 release:
 	script/release $(VERSION)
 
-bump:
-	script/bump $(VERSION)
-
 install: install_sh install_fish
 
 install_sh:
@@ -49,4 +46,4 @@ install_fish:
 	install -d $(DESTDIR)$(FISH_COMPLETION_DIR)
 	install -m 0644 etc/chtf-completion.fish $(DESTDIR)$(FISH_COMPLETION_DIR)/chtf.fish
 
-.PHONY: all lint check-version test release bump install
+.PHONY: all lint check-version test release install

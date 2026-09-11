@@ -58,18 +58,6 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Generate token
-        id: generate-token
-        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
-        with:
-          client-id: ${{ vars.APP_CLIENT_ID }}
-          private-key: ${{ secrets.APP_PRIVATE_KEY }}
-          permission-contents: write
-          owner: ${{ github.repository_owner }}
-          repositories: |
-            chtf
-            homebrew-terraforms
-
       - name: Create the tag and the GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
@@ -85,14 +73,61 @@ jobs:
           fi
           gh release create "v$VERSION" --title "v$VERSION" --notes "$notes" --target "$GITHUB_SHA"
 
-      # Committed through the API so that GitHub signs it
+      - name: Generate token
+        id: generate-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          client-id: ${{ vars.APP_CLIENT_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          permission-contents: write
+          owner: ${{ github.repository_owner }}
+          repositories: homebrew-terraforms
+
+      - name: Trigger the Homebrew tap update
+        env:
+          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
+        run: |
+          jq -n --arg version "$VERSION" \
+            '{event_type: "chtf-release", client_payload: {version: $version}}' |
+            gh api "repos/$GITHUB_REPOSITORY_OWNER/homebrew-terraforms/dispatches" --input -
+
+  bump:
+    needs: [check, release]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    env:
+      VERSION: ${{ needs.check.outputs.version }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # The app token makes CI run on the PR; GITHUB_TOKEN does not trigger workflows
+      - name: Generate token
+        id: generate-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          client-id: ${{ vars.APP_CLIENT_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          permission-contents: write
+          permission-pull-requests: write
+
+      # Committed through the API so that GitHub signs it, and as a PR
+      # because master requires the status checks
       - name: Bump version for development
         env:
           GH_TOKEN: ${{ steps.generate-token.outputs.token }}
         run: |
-          script/bump "$(awk -F. '{print $1 "." $2 "." $3 + 1}' <<< "$VERSION")"
+          next="$(awk -F. '{print $1 "." $2 "." $3 + 1}' <<< "$VERSION")"
+          script/bump "$next"
+          branch='next-dev-cycle'
+          gh api "repos/$GITHUB_REPOSITORY/git/refs" --silent -f ref="refs/heads/$branch" -f sha="$GITHUB_SHA"
           jq -n \
             --arg repo "$GITHUB_REPOSITORY" \
+            --arg branch "$branch" \
             --arg oid "$GITHUB_SHA" \
             --rawfile sh chtf/chtf.sh \
             --rawfile fish chtf/chtf.fish \
@@ -100,7 +135,7 @@ jobs:
             '{
               query: "mutation($input: CreateCommitOnBranchInput!) { createCommitOnBranch(input: $input) { commit { oid } } }",
               variables: {input: {
-                branch: {repositoryNameWithOwner: $repo, branchName: "master"},
+                branch: {repositoryNameWithOwner: $repo, branchName: $branch},
                 expectedHeadOid: $oid,
                 message: {headline: "Bump version for development"},
                 fileChanges: {additions: [
@@ -110,12 +145,8 @@ jobs:
                 ]}
               }}
             }' > bump.json
-          gh api graphql --input bump.json
-
-      - name: Trigger the Homebrew tap update
-        env:
-          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
-        run: |
-          jq -n --arg version "$VERSION" \
-            '{event_type: "chtf-release", client_payload: {version: $version}}' |
-            gh api "repos/$GITHUB_REPOSITORY_OWNER/homebrew-terraforms/dispatches" --input -
+          gh api graphql --silent --input bump.json
+          gh pr create --base master --head "$branch" \
+            --title "Bump version for development" \
+            --body "Bump to $next-dev after releasing v$VERSION."
+          gh pr merge --auto --squash "$branch"
