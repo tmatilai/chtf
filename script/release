@@ -16,8 +16,10 @@ if [[ "$(git branch --show-current)" != 'master' ]]; then
     echo "release: not on master" >&2
     exit 1
 fi
-if [[ -n "$(git status --porcelain)" ]]; then
-    echo "release: working tree is not clean" >&2
+# The changelog entry is usually polished right before the release, so let
+# those edits ride along in the release commit
+if [[ -n "$(git status --porcelain -- ':!CHANGELOG.md')" ]]; then
+    echo "release: working tree has changes outside CHANGELOG.md" >&2
     exit 1
 fi
 
